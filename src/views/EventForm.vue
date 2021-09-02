@@ -33,7 +33,7 @@
       <input
         v-model="event.location"
         type="text"
-        placeholder="Locatoion"
+        placeholder="Location"
         class="field"
       />
       <button type="submit">Submit</button>
@@ -70,6 +70,7 @@ export default {
           this.$router.push('NetworkError')
         })
     }
+  }
 }
 </script>
 
