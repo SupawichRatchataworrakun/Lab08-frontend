@@ -1,22 +1,34 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {
+  createRouter,
+  createWebHistory
+} from 'vue-router'
 import EventList from '../views/EventList.vue'
 import About from '../views/About.vue'
 import EventDetails from '@/views/event/Details.vue'
 import EventRegister from '@/views/event/Register.vue'
 import EventEdit from '@/views/event/Edit.vue'
 import EventLayout from '@/views/event/Layout.vue'
+
+import OrganizerDetails from '@/views/organizer/Details.vue'
+import OrganizerRegister from '@/views/organizer/Register.vue'
+import OrganizerEdit from '@/views/organizer/Edit.vue'
+import OrganizerLayout from '@/views/organizer/Layout.vue'
+
 import NotFound from '@/views/NotFound.vue'
 import AddEvent from '@/views/EventForm.vue'
+import AddOrganizer from '@/views/OrganizerForm.vue'
 import NetWorkError from '@/views/NetworkError.vue'
 import NProgress from 'nprogress'
 import EventService from '@/services/EventService.js'
+import OrganizerService from '@/services/OrganizerService.js'
 import GStore from '@/store'
-const routes = [
-  {
+const routes = [{
     path: '/',
     name: 'EventList',
     component: EventList,
-    props: (route) => ({ page: parseInt(route.query.page) || 1 })
+    props: (route) => ({
+      page: parseInt(route.query.page) || 1
+    })
   },
   {
     path: '/about',
@@ -27,6 +39,11 @@ const routes = [
     path: '/add-event',
     name: 'AddEvent',
     component: AddEvent
+  },
+  {
+    path: '/add-organizer',
+    name: 'AddOrganizer',
+    component: AddOrganizer
   },
   {
     path: '/event/:id',
@@ -44,15 +61,18 @@ const routes = [
             return {
               // <--- Return
               name: '404Resource',
-              params: { resource: 'event' }
+              params: {
+                resource: 'event'
+              }
             }
           } else {
-            return { name: 'NetworkError' } // <--- Return
+            return {
+              name: 'NetworkError'
+            } // <--- Return
           }
         })
     },
-    children: [
-      {
+    children: [{
         path: '',
         name: 'EventDetails',
         component: EventDetails
@@ -68,6 +88,52 @@ const routes = [
         name: 'EventEdit',
         props: true,
         component: EventEdit
+      }
+    ]
+  },
+  {
+    path: '/organizer/:id',
+    name: 'OrganizerLayout',
+    props: true,
+    component: OrganizerLayout,
+    beforeEnter: (to) => {
+      return OrganizerService.getOrganizer(to.params.id) // Return and params.id
+        .then((response) => {
+          // Still need to set the data here
+          GStore.organizer = response.data // <--- Store the event
+        })
+        .catch((error) => {
+          if (error.response && error.response.status == 404) {
+            return {
+              // <--- Return
+              name: '404Resource',
+              params: {
+                resource: 'organizer'
+              }
+            }
+          } else {
+            return {
+              name: 'NetworkError'
+            } // <--- Return
+          }
+        })
+    },
+    children: [{
+        path: '',
+        name: 'OrganizerDetails',
+        component: OrganizerDetails
+      },
+      {
+        path: 'register',
+        name: 'OrganizerRegister',
+        props: true,
+        component: OrganizerRegister
+      },
+      {
+        path: 'edit',
+        name: 'OrganizerEdit',
+        props: true,
+        component: OrganizerEdit
       }
     ]
   },
@@ -96,7 +162,9 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition
     } else {
-      return { top: 0 }
+      return {
+        top: 0
+      }
     }
   }
 })
